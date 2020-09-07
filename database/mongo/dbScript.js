@@ -117,6 +117,12 @@ db.createCollection("comment", {
                 idUser: {
                     bsonType: "String"
                 },
+                idTask: {
+                    bsonType: "String"
+                },
+                idProject: {
+                    bsonType: "String"
+                },
                 createdAt: {
                     bsonType: "Date"
                 },
