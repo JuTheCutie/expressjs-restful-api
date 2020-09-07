@@ -12,19 +12,19 @@ db.createCollection("user", {
             required: ["nickname","name","email","password","createdAt"],
             properties: {
                 nickname: {
-                    bsonType: "String"
+                    bsonType: "string"
                 },
                 name: {
-                    bsonType: "String"
+                    bsonType: "string"
                 },
                 email: {
-                    bsonType: "String"
+                    bsonType: "string"
                 },
                 password: {
-                    bsonType: "String"
+                    bsonType: "string"
                 },
                 createdAt: {
-                    bsonType: "Date"
+                    bsonType: "date"
                 },
             }
         }
@@ -40,10 +40,10 @@ db.createCollection("color", {
             required: ["name","hexCode"],
             properties: {
                 name: {
-                    bsonType: "String"
+                    bsonType: "string"
                 },
                 hexCode: {
-                    bsonType: "String"
+                    bsonType: "string"
                 },
             }
         }
@@ -59,16 +59,16 @@ db.createCollection("project", {
             required: ["name","idColor","idUser","createdAt"],
             properties: {
                 name: {
-                    bsonType: "String"
+                    bsonType: "string"
                 },
                 idColor: {
-                    bsonType: "String"
+                    bsonType: "string"
                 },
                 idUser: {
-                    bsonType: "String"
+                    bsonType: "string"
                 },
                 createdAt: {
-                    bsonType: "Date"
+                    bsonType: "date"
                 },
             }
         }
@@ -84,19 +84,19 @@ db.createCollection("task", {
             required: ["body","priority","schedule","idProject","createdAt"],
             properties: {
                 body: {
-                    bsonType: "String"
+                    bsonType: "string"
                 },
                 priority: {
-                    bsonType: "String"
+                    bsonType: "string"
                 },
                 schedule: {
-                    bsonType: "Date"
+                    bsonType: "date"
                 },
                 idProject: {
-                    bsonType: "String"
+                    bsonType: "string"
                 },
                 createdAt: {
-                    bsonType: "Date"
+                    bsonType: "date"
                 },
             }
         }
@@ -112,19 +112,19 @@ db.createCollection("comment", {
             required: ["text","idUser","createdAt"],
             properties: {
                 text: {
-                    bsonType: "String"
+                    bsonType: "string"
                 },
                 idUser: {
-                    bsonType: "String"
+                    bsonType: "string"
                 },
                 idTask: {
-                    bsonType: "String"
+                    bsonType: "string"
                 },
                 idProject: {
-                    bsonType: "String"
+                    bsonType: "string"
                 },
                 createdAt: {
-                    bsonType: "Date"
+                    bsonType: "date"
                 },
             }
         }
