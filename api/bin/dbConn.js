@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const keys = require('../keys/key');
+const keys = require('../key/key');
 
 
 const db = {
