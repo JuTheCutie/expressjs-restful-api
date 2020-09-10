@@ -56,7 +56,7 @@ db.createCollection("project", {
     validator: {
         $jsonSchema: {
             bsonType: "object",
-            required: ["name","idColor","idUser","createdAt"],
+            required: ["name","idColor","idUsers","createdAt"],
             properties: {
                 name: {
                     bsonType: "string"
@@ -87,7 +87,7 @@ db.createCollection("task", {
                     bsonType: "string"
                 },
                 priority: {
-                    bsonType: "string"
+                    bsonType: "boolean"
                 },
                 schedule: {
                     bsonType: "date"

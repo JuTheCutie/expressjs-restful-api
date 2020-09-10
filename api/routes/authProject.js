@@ -110,7 +110,7 @@ router.post('/new', utils.verifyToken, (req, res, next) => {
 //GET Read project by :id
 router.get('/:id', utils.verifyToken, (req, res, next) => {
 
-    var projectId = req.params.id;
+    var idProject = req.params.id;
 
     //verify user token
     jwt.verify(req.token, keys.secretKey, (err, authData) => {
@@ -118,7 +118,7 @@ router.get('/:id', utils.verifyToken, (req, res, next) => {
             res.sendStatus(403);
         } else {
 
-            Project.findById({ _id: projectId })
+            Project.findById({ _id: idProject })
             .exec()
             .then(data => {
 
@@ -152,7 +152,7 @@ router.get('/:id', utils.verifyToken, (req, res, next) => {
 //PUT Update project by :id
 router.put('/:id', utils.verifyToken, (req, res, next) => {
 
-    var projectId = req.params.id;
+    var idProject = req.params.id;
 
     //Check req body
     if (req.body.name && req.body.idColor && req.body.idUser) {
@@ -166,7 +166,7 @@ router.put('/:id', utils.verifyToken, (req, res, next) => {
                 if (req.body.idUser === authData.user._id) {
 
                     //Update project
-                    Project.updateOne({ _id: projectId }, { $set: {
+                    Project.updateOne({ _id: idProject }, { $set: {
                         name: req.body.name,
                         idColor: req.body.idColor
                     }})
@@ -207,7 +207,7 @@ router.put('/:id', utils.verifyToken, (req, res, next) => {
 router.patch('/add/collaborator', utils.verifyToken, (req, res, next) => {
 
     //Check req body
-    if (req.body.idUser && req.body.projectId && Array.isArray(req.body.idCollabs)) {
+    if (req.body.idUser && req.body.idProject && Array.isArray(req.body.idCollabs)) {
 
         if (req.body.idCollabs.length !== 0) {
 
@@ -221,7 +221,7 @@ router.patch('/add/collaborator', utils.verifyToken, (req, res, next) => {
 
                         //Add collaborator to project
                         Project.updateOne(
-                            { _id: req.body.projectId },
+                            { _id: req.body.idProject },
                             { $push: { idUsers: { $each: req.body.idCollabs } } }
                         ).exec()
                         .then(result => {
@@ -257,7 +257,7 @@ router.patch('/add/collaborator', utils.verifyToken, (req, res, next) => {
         res.status(200).send({
             success: false,
             err: "Body Props are empty",
-            requires: ["idUser","projectId","idCollabs"]
+            requires: ["idUser","idProject","idCollabs"]
         });
     }
 
@@ -267,7 +267,7 @@ router.patch('/add/collaborator', utils.verifyToken, (req, res, next) => {
 router.patch('/remove/collaborator', utils.verifyToken, (req, res, next) => {
 
     //Check req body
-    if (req.body.idUser && req.body.projectId && req.body.idCollab) {
+    if (req.body.idUser && req.body.idProject && req.body.idCollab) {
         
         //verify user token
         jwt.verify(req.token, keys.secretKey, (err, authData) => {
@@ -279,7 +279,7 @@ router.patch('/remove/collaborator', utils.verifyToken, (req, res, next) => {
 
                     //Remove collaborator from the project
                     Project.updateOne(
-                        { _id: req.body.projectId },
+                        { _id: req.body.idProject },
                         { $pull: { idUsers: req.body.idCollab }}
                     ).exec()
                     .then(result => {
@@ -308,7 +308,7 @@ router.patch('/remove/collaborator', utils.verifyToken, (req, res, next) => {
         res.status(200).send({
             success: false,
             err: "Body Props are empty",
-            requires: ["idUser","projectId","idCollab"]
+            requires: ["idUser","idProject","idCollab"]
         });
     }
 
@@ -317,10 +317,10 @@ router.patch('/remove/collaborator', utils.verifyToken, (req, res, next) => {
 //DELETE project by :id
 router.delete('/:id', utils.verifyToken, (req, res, next) => {
 
-    var projectId = req.params.id;
+    var idProject = req.params.id;
 
     //Check req body
-    if (req.body.name && req.body.idColor && req.body.idUser) {
+    if (req.body.idUser) {
         
         //verify user token
         jwt.verify(req.token, keys.secretKey, (err, authData) => {
@@ -331,7 +331,7 @@ router.delete('/:id', utils.verifyToken, (req, res, next) => {
                 if (req.body.idUser === authData.user._id) {
 
                     //Delete project
-                    Project.deleteOne({ _id: projectId })
+                    Project.deleteOne({ _id: idProject })
                         .exec()
                         .then(result => {
                             res.status(200).send({
@@ -359,7 +359,7 @@ router.delete('/:id', utils.verifyToken, (req, res, next) => {
         res.status(200).send({
             success: false,
             err: "Body Props are empty",
-            requires: ["name","idColor","idUser"]
+            requires: ["idUser"]
         });
     }
 
