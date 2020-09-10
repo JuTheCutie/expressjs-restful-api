@@ -1,5 +1,3 @@
-const db = require("../../api/bin/dbConn");
-
 //Insert Colors
 db.color.insertMany([
     { name: "AliceBlue", hexCode: "#F0F8FF" },
