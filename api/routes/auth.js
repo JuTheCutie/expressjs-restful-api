@@ -101,13 +101,13 @@ router.post('/register', (req, res ,next) => {
                             res.status(200).send({
                                 success: true,
                                 result: result
-                            })
+                            });
                         })
                         .catch(err => {
                             res.status(500).send({
                                 success: false,
                                 err: err
-                            })
+                            });
                         })
                 } else { // exists
                     res.status(200).send({

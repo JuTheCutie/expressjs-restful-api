@@ -6,7 +6,7 @@ var projectSchema = new Schema({
     _id: { type: objectId, auto: true },
     name: { type: String, required: true },
     idColor: { type: objectId, ref: 'Color', required: true },
-    idUser: { type: objectId, ref: 'User', required: true },
+    idUsers: [{ type: objectId, ref: 'User', required: true }],
     createdAt: { type: Date, default: Date.now }
 });
 

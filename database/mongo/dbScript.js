@@ -64,8 +64,8 @@ db.createCollection("project", {
                 idColor: {
                     bsonType: "string"
                 },
-                idUser: {
-                    bsonType: "string"
+                idUsers: {
+                    bsonType: "array"
                 },
                 createdAt: {
                     bsonType: "date"

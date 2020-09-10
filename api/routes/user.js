@@ -38,18 +38,19 @@ router.get('/:id', (req, res, next) => {
 
     var id = req.params.id;
 
-    User.findById(id)
+    User.findById({ _id: id })
+    .exec()
     .then(data => {
         res.status(200).send({
             success: true,
             user: data
-        })
+        });
     })
     .catch(err => {
         res.status(500).send({
             success: false,
             err: err
-        })
+        });
     });
 
 });

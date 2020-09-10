@@ -28,7 +28,8 @@ router.put('/update/:id', utils.verifyToken, (req, res, next) => {
                         name: req.body.name,
                         email: req.body.email.toLowerCase(),
                         password: req.body.password
-                    }}).exec()
+                    }})
+                    .exec()
                     .then(result => {
                         res.status(200).send({
                             success: true,
