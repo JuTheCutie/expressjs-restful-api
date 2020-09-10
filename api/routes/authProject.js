@@ -4,6 +4,9 @@ const keys = require('../key/key');
 const utils = require('../bin/utils');
 const jwt = require('jsonwebtoken');
 
+const mongoose = require('mongoose');
+const ObjectId = mongoose.Types.ObjectId;
+
 const Project = require('../model/project');
 
 //GET Read all projects from userId:
@@ -22,7 +25,7 @@ router.get('/', utils.verifyToken, (req, res, next) => {
 
                     //Find all projects from idUser
                     Project.aggregate([
-                        { $match: { idUsers: req.body.idUser } }
+                        { $match: { idUsers: ObjectId(req.body.idUser) } }
                     ]).then(data => {
                         res.status(200).send({
                             success: true,
@@ -122,19 +125,25 @@ router.get('/:id', utils.verifyToken, (req, res, next) => {
             .exec()
             .then(data => {
 
+                var verifiedUser = false;
                 //verify if idUser of the project is auth user id
                 for (let i=0; i<data.idUsers.length; i++) {
-                    if (data.idUsers[i] === authData.user._id) {
-                        res.status(200).send({
-                            success: true,
-                            project: data
-                        });
+                    if (data.idUsers[i] == authData.user._id) {
+                        verifiedUser = true;
                     }
                 }
-                res.status(403).send({
-                    success: false,
-                    err: ":id doesn't match token data id"
-                });
+
+                if (verifiedUser) {
+                    res.status(200).send({
+                        success: true,
+                        project: data
+                    });
+                } else {
+                    res.status(403).send({
+                        success: false,
+                        err: ":id doesn't match token data id"
+                    });
+                }
 
             })
             .catch(err => {
