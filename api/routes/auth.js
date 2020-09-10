@@ -1,6 +1,7 @@
 var express = require('express');
 var router = express.Router();
 const keys = require('../key/key');
+const utils = require('../bin/utils');
 const jwt = require('jsonwebtoken');
 
 const User = require('../model/user');
@@ -133,14 +134,15 @@ router.post('/register', (req, res ,next) => {
         } else {
             res.status(200).send({
                 success: false,
-                err: "Body Props are empty"
+                err: "Body Props are empty",
+                requires: ["nickname","name","email","password"]
             });
         }
 
 });
 
 //GET is logged in
-router.get('/isloggedin', verifyToken, (req, res ,next) => {
+router.get('/isloggedin', utils.verifyToken, (req, res, next) => {
 
     jwt.verify(req.token, keys.secretKey, (err, authData) => {
         if (err) {
@@ -155,15 +157,5 @@ router.get('/isloggedin', verifyToken, (req, res ,next) => {
     })
 
 });
-
-function verifyToken(req, res, next) {
-    const token = req.headers['authorization'];
-    if (typeof token !== 'undefined') {
-        req.token = token;
-        next();
-    } else {
-        res.sendStatus(403)
-    }
-}
 
 module.exports = router

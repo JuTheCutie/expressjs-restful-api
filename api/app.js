@@ -4,6 +4,8 @@ var db = require('./bin/dbConn');
 
 var indexRouter = require('./routes/index');
 var authRouter = require('./routes/auth');
+var authUserRouter = require('./routes/authUser');
+var userRouter = require('./routes/user');
 
 db.connect();
 var app = express();
@@ -15,5 +17,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use('/', indexRouter);
 app.use('/api/', indexRouter);
 app.use('/api/auth/', authRouter);
+app.use('/api/auth/user', authUserRouter);
+app.use('/api/user/', userRouter);
 
 module.exports = app;
