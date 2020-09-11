@@ -94,14 +94,19 @@ router.get('/:id', utils.verifyToken, (req, res, next) => {
             res.sendStatus(403);
         } else {
 
-            Project.findById({ _id: idProject })
-            .exec()
+            console.log(idProject.toString())
+
+            Project.aggregate([
+                { $match: { _id: ObjectId(idProject) } },
+                { $lookup: { from: 'user', localField: 'idUsers', foreignField: '_id', as: 'idUsers' } },
+                { $lookup: { from: 'color', localField: 'idColor', foreignField: '_id', as: 'idColor' } }
+            ])
             .then(data => {
 
                 var verifiedUser = false;
                 //verify if idUser of the project is auth user id
-                for (let i=0; i<data.idUsers.length; i++) {
-                    if (data.idUsers[i] == authData.user._id) {
+                for (let i=0; i<data[0].idUsers.length; i++) {
+                    if (data[0].idUsers[i]._id == authData.user._id) {
                         verifiedUser = true;
                     }
                 }
@@ -226,14 +231,26 @@ router.patch('/add/collaborator', utils.verifyToken, (req, res, next) => {
                     .then(data => {
 
                         var verifiedUser = false;
+                        var collabAlredyExists = false;
                         //verify if idUser of the project is auth user id
                         for (let i=0; i<data.idUsers.length; i++) {
                             if (data.idUsers[i] == authData.user._id) {
                                 verifiedUser = true;
+                                break;
                             }
                         }
 
-                        if (verifiedUser) {
+                        //verify if collab already exists
+                        for (let i=0; i<data.idUsers.length; i++) {
+                            for (let j=0; j<req.body.idCollabs.length; j++) {
+                                if (req.body.idCollabs[j] == data.idUsers[i]) {
+                                    collabAlredyExists = true;
+                                    break;
+                                }
+                            }
+                        }
+
+                        if (verifiedUser && !collabAlredyExists) {
 
                             //Add collaborator to project
                             Project.updateOne(
@@ -256,7 +273,7 @@ router.patch('/add/collaborator', utils.verifyToken, (req, res, next) => {
                         } else {
                             res.status(403).send({
                                 success: false,
-                                err: "You're not in this project"
+                                err: "You're not in this project or collaborator is already on project"
                             });
                         }
 
