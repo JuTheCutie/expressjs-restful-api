@@ -11,92 +11,65 @@ const Project = require('../model/project');
 
 //GET Read all projects from userId:
 router.get('/', utils.verifyToken, (req, res, next) => {
-
-    //Check req body
-    if (req.body.idUser) {
         
-        //verify user token
-        jwt.verify(req.token, keys.secretKey, (err, authData) => {
-            if (err) {
-                res.sendStatus(403);
-            } else {
-                //verify if idUser is auth user id
-                if (req.body.idUser === authData.user._id) {
+    //verify user token
+    jwt.verify(req.token, keys.secretKey, (err, authData) => {
+        if (err) {
+            res.sendStatus(403);
+        } else {
 
-                    //Find all projects from idUser
-                    Project.aggregate([
-                        { $match: { idUsers: ObjectId(req.body.idUser) } }
-                    ]).then(data => {
-                        res.status(200).send({
-                            success: true,
-                            projects: data
-                        });
-                    }).catch(err => {
-                        res.status(500).send({
-                            success: false,
-                            err: err
-                        });
-                    });
+            //Find all projects from auth user
+            Project.aggregate([
+                { $match: { idUsers: ObjectId(authData.user._id) } },
+                { $lookup: { from: 'user', localField: 'idUsers', foreignField: '_id', as: 'idUsers' } },
+                { $lookup: { from: 'color', localField: 'idColor', foreignField: '_id', as: 'idColor' } }
+            ]).then(data => {
+                res.status(200).send({
+                    success: true,
+                    projects: data
+                });
+            }).catch(err => {
+                res.status(500).send({
+                    success: false,
+                    err: err
+                });
+            });
 
-                } else {
-                    res.status(403).send({
-                        success: false,
-                        err: ":id doesn't match token data id"
-                    });
-                }
-            }
-        });
-
-    } else {
-        res.status(200).send({
-            success: false,
-            err: "Body Props are empty",
-            requires: ["idUser"]
-        });
-    }
-
+        }
+    });
 });
 
 //POST Create project to user idUser
 router.post('/new', utils.verifyToken, (req, res, next) => {
     
     //Check req body
-    if (req.body.name && req.body.idColor && req.body.idUser) {
+    if (req.body.name && req.body.idColor) {
         
         //verify user token
         jwt.verify(req.token, keys.secretKey, (err, authData) => {
             if (err) {
                 res.sendStatus(403);
             } else {
-                //verify if idUser is auth user id
-                if (req.body.idUser === authData.user._id) {
 
-                    //Create project
-                    const project = new Project({
-                        name: req.body.name,
-                        idColor: req.body.idColor,
-                        idUsers: [req.body.idUser]
+                //Create project
+                const project = new Project({
+                    name: req.body.name,
+                    idColor: req.body.idColor,
+                    idUsers: [authData.user._id]
+                });
+                project.save()
+                .then(result => {
+                    res.status(200).send({
+                        success: true,
+                        result: result
                     });
-                    project.save()
-                        .then(result => {
-                            res.status(200).send({
-                                success: true,
-                                result: result
-                            });
-                        })
-                        .catch(err => {
-                            res.status(500).send({
-                                success: false,
-                                err: err
-                            });
-                        });
-
-                } else {
-                    res.status(403).send({
+                })
+                .catch(err => {
+                    res.status(500).send({
                         success: false,
-                        err: ":id doesn't match token data id"
+                        err: err
                     });
-                }
+                });
             }
         });
 
@@ -104,7 +77,7 @@ router.post('/new', utils.verifyToken, (req, res, next) => {
         res.status(200).send({
             success: false,
             err: "Body Props are empty",
-            requires: ["name","idColor","idUser"]
+            requires: ["name","idColor"]
         });
     }
 
@@ -164,22 +137,64 @@ router.put('/:id', utils.verifyToken, (req, res, next) => {
     var idProject = req.params.id;
 
     //Check req body
-    if (req.body.name && req.body.idColor && req.body.idUser) {
+    if (req.body.name && req.body.idColor) {
         
         //verify user token
         jwt.verify(req.token, keys.secretKey, (err, authData) => {
             if (err) {
                 res.sendStatus(403);
             } else {
-                //verify if idUser is auth user id
-                if (req.body.idUser === authData.user._id) {
 
-                    //Update project
-                    Project.updateOne({ _id: idProject }, { $set: {
-                        name: req.body.name,
-                        idColor: req.body.idColor
-                    }})
-                    .exec()
+                //Update project
+                Project.updateOne({ _id: idProject }, { $set: {
+                    name: req.body.name,
+                    idColor: req.body.idColor
+                }})
+                .exec()
+                .then(result => {
+                    res.status(200).send({
+                        success: true,
+                        result: result
+                    });
+                })
+                .catch(err => {
+                    res.status(500).send({
+                        success: false,
+                        err: err
+                    });
+                });
+            }
+        });
+
+    } else {
+        res.status(200).send({
+            success: false,
+            err: "Body Props are empty",
+            requires: ["name","idColor"]
+        });
+    }
+
+});
+
+//PATCH add collaborator to project
+router.patch('/add/collaborator', utils.verifyToken, (req, res, next) => {
+
+    //Check req body
+    if (req.body.idProject && Array.isArray(req.body.idCollabs)) {
+
+        if (req.body.idCollabs.length !== 0) {
+
+            //verify user token
+            jwt.verify(req.token, keys.secretKey, (err, authData) => {
+                if (err) {
+                    res.sendStatus(403);
+                } else {
+
+                    //Add collaborator to project
+                    Project.updateOne(
+                        { _id: req.body.idProject },
+                        { $push: { idUsers: { $each: req.body.idCollabs } } }
+                    ).exec()
                     .then(result => {
                         res.status(200).send({
                             success: true,
@@ -192,66 +207,6 @@ router.put('/:id', utils.verifyToken, (req, res, next) => {
                             err: err
                         });
                     });
-
-                } else {
-                    res.status(403).send({
-                        success: false,
-                        err: ":id doesn't match token data id"
-                    });
-                }
-            }
-        });
-
-    } else {
-        res.status(200).send({
-            success: false,
-            err: "Body Props are empty",
-            requires: ["name","idColor","idUser"]
-        });
-    }
-
-});
-
-//PATCH add collaborator to project
-router.patch('/add/collaborator', utils.verifyToken, (req, res, next) => {
-
-    //Check req body
-    if (req.body.idUser && req.body.idProject && Array.isArray(req.body.idCollabs)) {
-
-        if (req.body.idCollabs.length !== 0) {
-
-            //verify user token
-            jwt.verify(req.token, keys.secretKey, (err, authData) => {
-                if (err) {
-                    res.sendStatus(403);
-                } else {
-                    //verify if idUser is auth user id
-                    if (req.body.idUser === authData.user._id) {
-
-                        //Add collaborator to project
-                        Project.updateOne(
-                            { _id: req.body.idProject },
-                            { $push: { idUsers: { $each: req.body.idCollabs } } }
-                        ).exec()
-                        .then(result => {
-                            res.status(200).send({
-                                success: true,
-                                result: result
-                            });
-                        })
-                        .catch(err => {
-                            res.status(500).send({
-                                success: false,
-                                err: err
-                            });
-                        });
-
-                    } else {
-                        res.status(403).send({
-                            success: false,
-                            err: ":id doesn't match token data id"
-                        });
-                    }
                 }
             });
 
@@ -266,7 +221,7 @@ router.patch('/add/collaborator', utils.verifyToken, (req, res, next) => {
         res.status(200).send({
             success: false,
             err: "Body Props are empty",
-            requires: ["idUser","idProject","idCollabs"]
+            requires: ["idProject","idCollabs"]
         });
     }
 
@@ -276,40 +231,31 @@ router.patch('/add/collaborator', utils.verifyToken, (req, res, next) => {
 router.patch('/remove/collaborator', utils.verifyToken, (req, res, next) => {
 
     //Check req body
-    if (req.body.idUser && req.body.idProject && req.body.idCollab) {
+    if (req.body.idProject && req.body.idCollab) {
         
         //verify user token
         jwt.verify(req.token, keys.secretKey, (err, authData) => {
             if (err) {
                 res.sendStatus(403);
             } else {
-                //verify if idUser is auth user id
-                if (req.body.idUser === authData.user._id) {
 
-                    //Remove collaborator from the project
-                    Project.updateOne(
-                        { _id: req.body.idProject },
-                        { $pull: { idUsers: req.body.idCollab }}
-                    ).exec()
-                    .then(result => {
-                        res.status(200).send({
-                            success: true,
-                            result: result
-                        });
-                    })
-                    .catch(err => {
-                        res.status(500).send({
-                            success: false,
-                            err: err
-                        })
+                //Remove collaborator from the project
+                Project.updateOne(
+                    { _id: req.body.idProject },
+                    { $pull: { idUsers: req.body.idCollab }}
+                ).exec()
+                .then(result => {
+                    res.status(200).send({
+                        success: true,
+                        result: result
                     });
-
-                } else {
-                    res.status(403).send({
+                })
+                .catch(err => {
+                    res.status(500).send({
                         success: false,
-                        err: ":id doesn't match token data id"
-                    });
-                }
+                        err: err
+                    })
+                });
             }
         });
 
@@ -317,7 +263,7 @@ router.patch('/remove/collaborator', utils.verifyToken, (req, res, next) => {
         res.status(200).send({
             success: false,
             err: "Body Props are empty",
-            requires: ["idUser","idProject","idCollab"]
+            requires: ["idProject","idCollab"]
         });
     }
 
@@ -327,50 +273,30 @@ router.patch('/remove/collaborator', utils.verifyToken, (req, res, next) => {
 router.delete('/:id', utils.verifyToken, (req, res, next) => {
 
     var idProject = req.params.id;
-
-    //Check req body
-    if (req.body.idUser) {
         
-        //verify user token
-        jwt.verify(req.token, keys.secretKey, (err, authData) => {
-            if (err) {
-                res.sendStatus(403);
-            } else {
-                //verify if idUser is auth user id
-                if (req.body.idUser === authData.user._id) {
+    //verify user token
+    jwt.verify(req.token, keys.secretKey, (err, authData) => {
+        if (err) {
+            res.sendStatus(403);
+        } else {
 
-                    //Delete project
-                    Project.deleteOne({ _id: idProject })
-                        .exec()
-                        .then(result => {
-                            res.status(200).send({
-                                success: true,
-                                result: result
-                            });
-                        })
-                        .catch(err => {
-                            res.status(500).send({
-                                success: false,
-                                err: err
-                            });
-                        });
-
-                } else {
-                    res.status(403).send({
-                        success: false,
-                        err: ":id doesn't match token data id"
-                    });
-                }
-            }
-        });
-
-    } else {
-        res.status(200).send({
-            success: false,
-            err: "Body Props are empty",
-            requires: ["idUser"]
-        });
-    }
+            //Delete project
+            Project.deleteOne({ _id: idProject })
+            .exec()
+            .then(result => {
+                res.status(200).send({
+                    success: true,
+                    result: result
+                });
+            })
+            .catch(err => {
+                res.status(500).send({
+                    success: false,
+                    err: err
+                });
+            });
+        }
+    });
 
 });
 
