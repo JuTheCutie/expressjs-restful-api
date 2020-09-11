@@ -145,23 +145,53 @@ router.put('/:id', utils.verifyToken, (req, res, next) => {
                 res.sendStatus(403);
             } else {
 
-                //Update project
-                Project.updateOne({ _id: idProject }, { $set: {
-                    name: req.body.name,
-                    idColor: req.body.idColor
-                }})
+                //verify if idProject is from authUser
+                Project.findById({ _id: idProject })
                 .exec()
-                .then(result => {
-                    res.status(200).send({
-                        success: true,
-                        result: result
-                    });
+                .then(data => {
+
+                    var verifiedUser = false;
+                    //verify if idUser of the project is auth user id
+                    for (let i=0; i<data.idUsers.length; i++) {
+                        if (data.idUsers[i] == authData.user._id) {
+                            verifiedUser = true;
+                        }
+                    }
+
+                    if (verifiedUser) {
+
+                        //Update Project
+                        Project.updateOne({ _id: idProject }, { $set: {
+                            name: req.body.name,
+                            idColor: req.body.idColor
+                        }})
+                        .exec()
+                        .then(result => {
+                            res.status(200).send({
+                                success: true,
+                                result: result
+                            });
+                        })
+                        .catch(err => {
+                            res.status(500).send({
+                                success: false,
+                                err: err
+                            });
+                        });
+
+                    } else {
+                        res.status(403).send({
+                            success: false,
+                            err: "You're not in this project"
+                        });
+                    }
+                    
                 })
                 .catch(err => {
                     res.status(500).send({
                         success: false,
                         err: err
-                    });
+                    })
                 });
             }
         });
@@ -190,23 +220,53 @@ router.patch('/add/collaborator', utils.verifyToken, (req, res, next) => {
                     res.sendStatus(403);
                 } else {
 
-                    //Add collaborator to project
-                    Project.updateOne(
-                        { _id: req.body.idProject },
-                        { $push: { idUsers: { $each: req.body.idCollabs } } }
-                    ).exec()
-                    .then(result => {
-                        res.status(200).send({
-                            success: true,
-                            result: result
-                        });
+                    //verify if idProject if from auth user
+                    Project.findById({ _id: req.body.idProject })
+                    .exec()
+                    .then(data => {
+
+                        var verifiedUser = false;
+                        //verify if idUser of the project is auth user id
+                        for (let i=0; i<data.idUsers.length; i++) {
+                            if (data.idUsers[i] == authData.user._id) {
+                                verifiedUser = true;
+                            }
+                        }
+
+                        if (verifiedUser) {
+
+                            //Add collaborator to project
+                            Project.updateOne(
+                                { _id: req.body.idProject },
+                                { $push: { idUsers: { $each: req.body.idCollabs } } }
+                            ).exec()
+                            .then(result => {
+                                res.status(200).send({
+                                    success: true,
+                                    result: result
+                                });
+                            })
+                            .catch(err => {
+                                res.status(500).send({
+                                    success: false,
+                                    err: err
+                                });
+                            });
+
+                        } else {
+                            res.status(403).send({
+                                success: false,
+                                err: "You're not in this project"
+                            });
+                        }
+
                     })
                     .catch(err => {
                         res.status(500).send({
                             success: false,
                             err: err
                         });
-                    });
+                    })
                 }
             });
 
@@ -239,16 +299,47 @@ router.patch('/remove/collaborator', utils.verifyToken, (req, res, next) => {
                 res.sendStatus(403);
             } else {
 
-                //Remove collaborator from the project
-                Project.updateOne(
-                    { _id: req.body.idProject },
-                    { $pull: { idUsers: req.body.idCollab }}
-                ).exec()
-                .then(result => {
-                    res.status(200).send({
-                        success: true,
-                        result: result
-                    });
+
+                //verify if idProject is from auth user
+                Project.findById({ _id: req.body.idProject })
+                .exec()
+                .then(data => {
+
+                    var verifiedUser = false;
+                    //verify if idUser of the project is auth user id
+                    for (let i=0; i<data.idUsers.length; i++) {
+                        if (data.idUsers[i] == authData.user._id) {
+                            verifiedUser = true;
+                        }
+                    }
+
+                    if (verifiedUser) {
+
+                        //Remove collaborator from the project
+                        Project.updateOne(
+                            { _id: req.body.idProject },
+                            { $pull: { idUsers: req.body.idCollab }}
+                        ).exec()
+                        .then(result => {
+                            res.status(200).send({
+                                success: true,
+                                result: result
+                            });
+                        })
+                        .catch(err => {
+                            res.status(500).send({
+                                success: false,
+                                err: err
+                            })
+                        });
+
+                    } else {
+                        res.status(403).send({
+                            success: false,
+                            err: "You're not in this project"
+                        });
+                    }
+
                 })
                 .catch(err => {
                     res.status(500).send({
@@ -280,14 +371,44 @@ router.delete('/:id', utils.verifyToken, (req, res, next) => {
             res.sendStatus(403);
         } else {
 
-            //Delete project
-            Project.deleteOne({ _id: idProject })
+            //Verify if idProject is from the authUser
+            Project.findById({ _id: idProject })
             .exec()
-            .then(result => {
-                res.status(200).send({
-                    success: true,
-                    result: result
-                });
+            .then(data => {
+
+                var verifiedUser = false;
+                //verify if idUser of the project is auth user id
+                for (let i=0; i<data.idUsers.length; i++) {
+                    if (data.idUsers[i] == authData.user._id) {
+                        verifiedUser = true;
+                    }
+                }
+
+                if (verifiedUser) {
+
+                    //Delete project
+                    Project.deleteOne({ _id: idProject })
+                    .exec()
+                    .then(result => {
+                        res.status(200).send({
+                            success: true,
+                            result: result
+                        });
+                    })
+                    .catch(err => {
+                        res.status(500).send({
+                            success: false,
+                            err: err
+                        });
+                    });
+
+                } else {
+                    res.status(403).send({
+                        success: false,
+                        err: "You're not in this project"
+                    });
+                }
+
             })
             .catch(err => {
                 res.status(500).send({
