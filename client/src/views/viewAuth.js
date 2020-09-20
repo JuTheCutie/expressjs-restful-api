@@ -1,7 +1,13 @@
 import React, { Component } from 'react'
+import { Link } from 'react-router-dom';
+import { withRouter } from 'react-router-dom';
+
+import auth from '../controller/controllerAuth';
 
 class viewAuth extends Component {
     render() {
+
+        const { history } = this.props;
 
         if (this.props.auth === "login") {
 
@@ -17,11 +23,18 @@ class viewAuth extends Component {
                             <label for="password">Password</label>
                             <input type="password" className="form-control" id="password" />
 
-                            <button type="submit">Login</button>
+                            <button type="submit"
+                            onClick={() => {
+                                auth.login(() => {
+                                    history.push('/app');
+                                });
+                            }
+                            }>Login</button>
 
                         </form>
                     </div>
-                    <div className="landingAria">
+                    <div className="landingArea">
+                        <Link to="/register">Register</Link>
                     </div>
                 </div>
             )
@@ -47,7 +60,7 @@ class viewAuth extends Component {
                         </div>
                     </div>
                     <div className="landingArea">
-                        dssasas
+                        <Link to="/login">login</Link>
                     </div>
                 </div>
             )
@@ -57,4 +70,4 @@ class viewAuth extends Component {
     }
 }
 
-export default viewAuth
+export default withRouter(viewAuth);
