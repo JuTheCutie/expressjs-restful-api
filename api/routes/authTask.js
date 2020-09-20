@@ -20,8 +20,8 @@ router.get('/', utils.verifyToken, (req, res, next) => {
 
             //Find all tasks from auth user
             Task.aggregate([
-                { $lookup: { from: 'project', localField: 'idProject', foreignField: '_id', as: 'project' } },
-                { $match: { project: } }
+                { $lookup: { from: 'project', localField: 'idProject', foreignField: '_id', as: 'taskFromProject' } },
+                { $match: { "taskFromProject.idUsers": ObjectId(authData.user._id) } }
             ]).then(data => {
                 res.status(200).send({
                     success: true,
