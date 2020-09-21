@@ -11,7 +11,7 @@ const Task = require('../model/task');
 
 //GET all tasks of verified token user id
 router.get('/', utils.verifyToken, (req, res, next) => {
-
+    
     //verify user token
     jwt.verify(req.token, keys.secretKey, (err, authData) => {
         if (err) {
@@ -186,7 +186,7 @@ router.put('/:id', utils.verifyToken, (req, res, next) => {
     var idTask = req.params.id;
 
     //Check req.body
-    if (req.body.body && req.body.schedule && req.body.isCompleted && req.body.priority) {
+    if (req.body.body && req.body.schedule) {
         
         //verify user token
         jwt.verify(req.token, keys.secretKey, (err, authData) => {
@@ -206,8 +206,6 @@ router.put('/:id', utils.verifyToken, (req, res, next) => {
                         //update task
                         Task.updateOne({ _id: idTask }, { $set: {
                             body: req.body.body,
-                            priority: req.body.priority,
-                            isCompleted: req.body.isCompleted,
                             schedule: req.body.schedule
                         }})
                         .exec()
@@ -245,7 +243,143 @@ router.put('/:id', utils.verifyToken, (req, res, next) => {
         res.status(200).send({
             success: false,
             err: "Body Props are empty",
-            requires: ["body","schedule","isCompleted","priority"]
+            requires: ["body","schedule"]
+        });
+    }
+
+});
+
+//PATCH change state of idTask isCompleted
+router.patch('/:id', utils.verifyToken, (req, res, next) => {
+
+    var idTask = req.params.id;
+
+    //Check req.body
+    if (req.body.isCompleted) {
+        
+        //verify user token
+        jwt.verify(req.token, keys.secretKey, (err, authData) => {
+            if (err) {
+                res.sendStatus(403);
+            } else {
+                
+                //verify if task is from auth user
+                Task.aggregate([
+                    { $match: { _id: ObjectId(idTask) } },
+                    { $lookup: { from: 'project', localField: 'idProject', foreignField: '_id', as: 'taskFromProject' } },
+                    { $match: { "taskFromProject.idUsers": ObjectId(authData.user._id) } }
+                ])
+                .then(data => {
+                    if (data.length >= 1) {
+                        
+                        //change state isCompleted
+                        Task.updateOne({ _id: idTask }, { $set: {
+                            isCompleted: req.body.isCompleted
+                        }})
+                        .exec()
+                        .then(result => {
+                            res.status(200).send({
+                                success: true,
+                                result: result
+                            });
+                        })
+                        .catch(err => {
+                            res.status(500).send({
+                                success: false,
+                                err: err
+                            });
+                        });
+
+                    } else {
+                        res.status(200).send({
+                            success: false,
+                            err: "This idTask isn't yours"
+                        });
+                    }
+                })
+                .catch(err => {
+                    res.status(500).send({
+                        success: false,
+                        err: err
+                    });
+                })
+
+            }
+        });
+
+    } else {
+        res.status(200).send({
+            success: false,
+            err: "Body Props are empty",
+            requires: ["isCompleted"]
+        });
+    }
+
+});
+
+//PATCH change state of idTask priority
+router.patch('/:id', utils.verifyToken, (req, res, next) => {
+
+    var idTask = req.params.id;
+
+    //Check req.body
+    if (req.body.priority) {
+        
+        //verify user token
+        jwt.verify(req.token, keys.secretKey, (err, authData) => {
+            if (err) {
+                res.sendStatus(403);
+            } else {
+                
+                //verify if task is from auth user
+                Task.aggregate([
+                    { $match: { _id: ObjectId(idTask) } },
+                    { $lookup: { from: 'project', localField: 'idProject', foreignField: '_id', as: 'taskFromProject' } },
+                    { $match: { "taskFromProject.idUsers": ObjectId(authData.user._id) } }
+                ])
+                .then(data => {
+                    if (data.length >= 1) {
+                        
+                        //change state priority
+                        Task.updateOne({ _id: idTask }, { $set: {
+                            priority: req.body.priority
+                        }})
+                        .exec()
+                        .then(result => {
+                            res.status(200).send({
+                                success: true,
+                                result: result
+                            });
+                        })
+                        .catch(err => {
+                            res.status(500).send({
+                                success: false,
+                                err: err
+                            });
+                        });
+
+                    } else {
+                        res.status(200).send({
+                            success: false,
+                            err: "This idTask isn't yours"
+                        });
+                    }
+                })
+                .catch(err => {
+                    res.status(500).send({
+                        success: false,
+                        err: err
+                    });
+                })
+
+            }
+        });
+
+    } else {
+        res.status(200).send({
+            success: false,
+            err: "Body Props are empty",
+            requires: ["priority"]
         });
     }
 
