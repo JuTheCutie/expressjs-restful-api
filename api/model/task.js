@@ -6,6 +6,7 @@ var taskSchema = new Schema({
     _id: { type: objectId, auto: true },
     body: { type: String, required: true },
     priority: { type: Boolean, required: true },
+    isCompleted: { type: Boolean, required: true },
     schedule: { type: Date, required: true },
     idProject: { type: objectId, ref: 'Project', required: true },
     createdAt: { type: Date, default: Date.now }

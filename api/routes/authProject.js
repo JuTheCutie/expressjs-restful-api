@@ -40,7 +40,7 @@ router.get('/', utils.verifyToken, (req, res, next) => {
 });
 
 //POST Create project to user idUser
-router.post('/new', utils.verifyToken, (req, res, next) => {
+router.post('/', utils.verifyToken, (req, res, next) => {
     
     //Check req body
     if (req.body.name && req.body.idColor) {
