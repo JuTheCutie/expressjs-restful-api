@@ -15,7 +15,10 @@ router.get('/', utils.verifyToken, (req, res, next) => {
     //verify user token
     jwt.verify(req.token, keys.secretKey, (err, authData) => {
         if (err) {
-            res.sendStatus(403);
+            res.status(403).send({
+                success: false,
+                err: err
+            });
         } else {            
 
             //Find all tasks from auth user
@@ -47,7 +50,10 @@ router.get('/:id', utils.verifyToken, (req, res, next) => {
 
     jwt.verify(req.token, keys.secretKey, (err, authData) => {
         if (err) {
-            res.sendStatus(403)
+            res.status(403).send({
+                success: false,
+                err: err
+            });
         } else {
             
             Task.aggregate([
@@ -81,7 +87,10 @@ router.get('/fromproject/:id', utils.verifyToken, (req, res, next) => {
 
     jwt.verify(req.token, keys.secretKey, (err, authData) => {
         if (err) {
-            res.sendStatus(403);
+            res.status(403).send({
+                success: false,
+                err: err
+            });
         } else {
 
             //find task from
@@ -118,7 +127,10 @@ router.post('/', utils.verifyToken, (req, res, next) => {
         //verify user token
         jwt.verify(req.token, key.secretKey, (err, authData) => {
             if (err) {
-                res.sendStatus(403);
+                res.status(403).send({
+                    success: false,
+                    err: err
+                });
             } else {
 
                 //verify if idProject is from auth user
@@ -191,7 +203,10 @@ router.put('/:id', utils.verifyToken, (req, res, next) => {
         //verify user token
         jwt.verify(req.token, keys.secretKey, (err, authData) => {
             if (err) {
-                res.sendStatus(403);
+                res.status(403).send({
+                    success: false,
+                    err: err
+                });
             } else {
                 
                 //verify if task is from auth user
@@ -260,7 +275,10 @@ router.patch('/:id', utils.verifyToken, (req, res, next) => {
         //verify user token
         jwt.verify(req.token, keys.secretKey, (err, authData) => {
             if (err) {
-                res.sendStatus(403);
+                res.status(403).send({
+                    success: false,
+                    err: err
+                });
             } else {
                 
                 //verify if task is from auth user
@@ -328,7 +346,10 @@ router.patch('/:id', utils.verifyToken, (req, res, next) => {
         //verify user token
         jwt.verify(req.token, keys.secretKey, (err, authData) => {
             if (err) {
-                res.sendStatus(403);
+                res.status(403).send({
+                    success: false,
+                    err: err
+                });
             } else {
                 
                 //verify if task is from auth user
@@ -393,7 +414,10 @@ router.delete('/:id', utils.verifyToken, (req, res, next) => {
     //verify user token
     jwt.verify(req.token, keys.secretKey, (err, authData) => {
         if (err) {
-            res.sendStatus(403);
+            res.status(403).send({
+                success: false,
+                err: err
+            });
         } else {
             
             //verify if idTask is from auth user
