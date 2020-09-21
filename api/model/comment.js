@@ -5,6 +5,7 @@ const objectId = mongoose.Schema.ObjectId;
 var commentSchema = new Schema({
     _id: { type: objectId, auto: true },
     text: { type: String, required: true },
+    isEdited: { type: Boolean, required: true },
     idUser: { type: objectId, ref: 'User', required: true },
     idTask: { type: objectId, ref: 'Task' },
     idProject: { type: objectId, ref: 'Project' },
