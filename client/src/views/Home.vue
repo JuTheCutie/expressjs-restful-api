@@ -13,10 +13,17 @@
                 </div>
             </div>
             <div class="postEntry">
-                <h1>Why Use ProjectCheck?</h1>
-                <ul class="lista">
-                    <li><h3>Free Your Mind</h3></li>
-                </ul>
+                <h1>Why You Should Use ProjectCheck?</h1><br><br>
+                <div class="introItem">
+                    <h3>Free Your Mind</h3>
+                    <p>Lorem ipsum dolor, sit amet consectetur adipisicing elit. Cupiditate nostrum iste esse autem nisi itaque recusandae hic magnam voluptatibus tempore. Cum, repellendus nobis. Fuga vitae soluta architecto fugiat voluptatem temporibus?</p>
+                    <img class="introImg" src="../assets/img/todolist.png" alt="introImg">
+                </div><br><br>
+                <div class="introItem">
+                    <h3>Free Your Mind</h3>
+                    <p>Lorem ipsum dolor, sit amet consectetur adipisicing elit. Cupiditate nostrum iste esse autem nisi itaque recusandae hic magnam voluptatibus tempore. Cum, repellendus nobis. Fuga vitae soluta architecto fugiat voluptatem temporibus?</p>
+                    <img class="introImg" src="../assets/img/collaboration.png" alt="introImg">
+                </div>
             </div>
         </div>
     </div>
@@ -35,6 +42,17 @@ export default {
 </script>
 
 <style scoped>
+.introItem {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    align-items: center;
+    align-content: center;
+}
+.introImg {
+    width: 75%;
+}
 .leftSide {
     position: fixed;
     float: left;
@@ -62,7 +80,7 @@ export default {
     position: relative;
     text-align: center;
     height: 100vh;
-    background: linear-gradient(30deg, rgba(65,9,121,1) 6%, rgba(0,255,207,1) 100%);
+    background: linear-gradient(30deg, rgba(65,9,121,1) 6%, rgba(0,153,255,1) 100%);
     font-size: 100px;
     color: white;
 }
